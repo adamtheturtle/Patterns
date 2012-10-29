@@ -102,7 +102,13 @@ define([
 
             if (options.ajax) {
                 var source = $trigger.attr("href").split("#"),
-                    target_id = $container.find("progress").attr("id");
+                    $target = $container.find("progress");
+                
+                if ($target.length == 0) {
+                    $target = tooltip.resetContainer($container);
+                }
+
+                var target_id = $target.attr("id");
                 inject.execute([{
                     url: source[0],
                     source: '#' + source[1],
@@ -133,12 +139,25 @@ define([
         },
 
         getContainer: function($trigger) {
-            var $container = $trigger.data("patterns.tooltip.container");
+            var $container = $trigger.data("patterns.tooltip.container"),
+                options = $trigger.data("patterns.tooltip");
+
             if ($container===undefined) {
                 $container=tooltip.createContainer($trigger);
                 $trigger.data("patterns.tooltip.container", $container);
             }
             return $container;
+        },
+
+        resetContainer: function($container) {
+            var count = $container.data("patterns.tooltip.count"),
+                $progress = $("<progress/>", {"id": "tooltip-load-" + count});
+
+            $container.children("div.tooltip-content")
+                .empty()
+                .append($progress);
+
+            return $progress;
         },
 
         createContainer: function($trigger) {
@@ -154,8 +173,9 @@ define([
             } else {
                 $content = $("<p/>").text(options.title);
             }
-            $container.append(
-                $("<div/>").css("display", "block").append($content))
+            $container
+                .append($("<div/>", {"class": "tooltip-content"})
+                        .css("display", "block").append($content))
                 .append($("<span></span>", {"class": "pointer"}));
             if (options.sticky && !options.noclose) {
                 $("<button/>", {"class": "close-panel"})
@@ -163,6 +183,8 @@ define([
                     .insertBefore($container.find("*"));
             }
             $("body").append($container);
+
+            $container.data("patterns.tooltip.count", count);
             return $container;
         },
 
