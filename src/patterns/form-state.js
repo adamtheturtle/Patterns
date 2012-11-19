@@ -15,7 +15,7 @@ define([
                 return $form.each(function() { _.init($(this)); });
 
             // XXX: hide reset buttons until we have proper handling for them
-            $form.find('[type=reset]').hide();
+            //$form.find('[type=reset]').hide();
 
             _.setReset.call($form);
 
@@ -78,6 +78,11 @@ define([
                 '<time class="last-saved" datetime="' + timestr + '">' +
                     timestr + '</time>'
             );
+
+            var $fields = $form.find('input').add($form.find('textarea'));
+            $fields.each(function() {
+                this.defaultValue = this.value;
+            });
 
             $form.addClass("saved");
         }
